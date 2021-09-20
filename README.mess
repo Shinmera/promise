@@ -4,6 +4,8 @@ This library implements a basic promise datastructure, which is useful for deali
 Additionally, and somewhat uncommonly for promises, this library offers timeouts, to avoid deadlocks or excessive garbage when dealing with systems that are unreliable or unstable.
 
 ## How To
+For the purpose of this tutorial we assume that ``org.shirakumo.promise`` has a local nickname of ``promise``.
+
 Constructing a promise can be done in a variety of ways, with the most basic being ``make`` and the shorthand ``with-promise``.
 
 :: common lisp
