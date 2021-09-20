@@ -1,0 +1,37 @@
+## About Promise
+This library implements a basic promise datastructure, which is useful for dealing with asynchronous behaviours. Importantly, this library does not use any other libraries or frameworks, and instead leaves the execution and state transition of promise objects in your control, making it easy to integrate.
+
+Additionally, and somewhat uncommonly for promises, this library offers timeouts, to avoid deadlocks or excessive garbage when dealing with systems that are unreliable or unstable.
+
+## How To
+Constructing a promise can be done in a variety of ways, with the most basic being ``make`` and the shorthand ``with-promise``.
+
+:: common lisp
+(promise:make)
+; => #<PROMISE :PENDING>
+(promise:with-promise (succeed fail)
+  (with-some-async-thing (result)
+    (succeed result)))
+; => #<PROMISE :PENDING>
+::
+
+Each promise can also have a ``lifetime`` attached that says after how long the promise should automatically time out. This is useful to deal with unreliability issues and get the system unstuck. By default no lifetime is assigned and the promise lives forever.
+
+Typically the promise should be succeeded or failed by calling the supplied functions in the constructor after some asynchronous operation completes. However, you can also manually force the state transition outside of the closure by using ``succeed``, ``fail``, and ``timeout``.
+
+You can chain promises together using ``after``, ``then``, ``handle``, ``finally``, ``all``, ``any``, and ``->``.
+
+:: common lisp
+(promise:after * :success (lambda (value) (print value)))
+; => PROMISE
+::
+
+All of these functions return a new promise that encompasses some new promise about the combined state. See the respective documentation strings.
+
+If you're a user of a system that uses these promises, the above is all you should need to know about. If you're implementing an async event loop yourself and want to offer promises to the user, you should make sure to regularly call ``tick-all`` with the current universal-time timestamp. This will make sure to update promises and call handlers if necessary.
+
+You can also manually tick a promise with ``tick`` if necessary.
+
+While a promise is in the ``pending`` state, it is registered globally to allow ``tick-all`` to function without needing an extra way to track the object. Once the promise changes to a done state and all of its handlers have run with ``tick``, it is unregistered.
+
+Should your system somehow get stuck with promises that don't clear away, you can forcefully deregister all promises with ``clear``. Note that this is dangerous and usually not what you want outside of testing.
