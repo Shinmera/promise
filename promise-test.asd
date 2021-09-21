@@ -17,4 +17,4 @@
   :components ((:file "test"))
   :depends-on (:parachute
                :promise)
-  :perform (asdf:test-op (op c) (uiop:symbol-call :parachute :test :promise-test)))
+  :perform (asdf:test-op (op c) (uiop:symbol-call :parachute :test :org.shirakumo.promise.test)))

@@ -171,7 +171,7 @@ successfully returns, the new promise proceeds*. If a handler signals
 an error, the new promise fails.
 
 If the promise is already done, the respective handler function is
-called immediately, synchronously.
+/still/ called asynchronously!
 
 *When the new promise proceeds with a value from the handler, it acts
  differently depending on the returned value. If the value is another

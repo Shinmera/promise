@@ -134,6 +134,7 @@
     (false (promise:tick-all 0))
     (finish (promise:after promise :success (lambda (v) v)))
     (true (promise:tick-all 0))
+    (true (promise:tick-all 0))
     (false (promise:tick-all 0))))
 
 (define-test combinators

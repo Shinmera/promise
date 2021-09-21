@@ -162,23 +162,15 @@
                    (succeed next (funcall func))
                  (error (e)
                    (fail next e))))))
-      (case (state promise)
-        (:pending
-         (when success
-           (push (handler success) (on-success promise)))
-         (when failure
-           (push (handler failure) (on-failure promise)))
-         (when timeout
-           (push (thandler timeout) (on-timeout promise))))
-        (:success
-         (when success
-           (funcall (handler success) (value promise))))
-        (:failure
-         (when failure
-           (funcall (handler failure) (value promise))))
-        (:timeout
-         (when timeout
-           (funcall (thandler timeout) (value promise))))))
+      (when success
+        (push (handler success) (on-success promise)))
+      (when failure
+        (push (handler failure) (on-failure promise)))
+      (when timeout
+        (push (thandler timeout) (on-timeout promise)))
+      ;; Re-register to ensure the callbacks run asynchronously.
+      (when (done-p promise)
+        (register promise)))
     next))
 
 (defun then (promise on-success)
