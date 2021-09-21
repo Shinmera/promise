@@ -1,0 +1,221 @@
+<!DOCTYPE html> <html lang="EN"> <head> <meta charset="utf-8"> <title>Promise</title> <style>html body{margin:0 auto 0 auto;padding:20px;max-width:1024px;font-family:sans-serif;font-size:14pt;overflow-y:scroll;}html body a{text-decoration:none;}html body a[href]{color:#0055AA;}html body a[href]:hover{color:#0088EE;}html body pre{background:#FAFAFA;border:1px solid #DDDDDD;padding:0.75em;overflow-x:auto;}html body pre >code a[href]{color:#223388;}article.project h1{font-size:1.7em;}article.project h1,article.project h2,article.project h3,article.project h4,article.project h5,article.project h6{margin:0.2em 0 0.1em 0;text-indent:1em;}article.project >header{text-align:center;}article.project >header img.logo{display:block;margin:auto;max-height:170px;}article.project >header h1{display:inline-block;text-indent:0;font-size:2.5em;}article.project >header .version{vertical-align:bottom;}article.project >header .languages{margin-top:-0.5em;text-transform:capitalize;}article.project >header .description{margin:0;}article.project >header .pages{margin-top:0.5em;font-size:1.2em;text-transform:capitalize;}article.project >header .pages a{display:inline-block;padding:0 0.2em;}article.project >section{margin:1em 0 1em 0;}article.project #index >ul{list-style:none;margin:0;padding:0;}article.project .row label{display:inline-block;min-width:8em;}article.project #system .row{display:flex;}article.project #system #dependencies{display:inline;margin:0;padding:0;}article.project #system #dependencies li{display:inline;padding:0 0.2em;}article.definition{margin:1em 0 0 0;}article.definition >header h1,article.definition >header h2,article.definition >header h3,article.definition >header h4,article.definition >header h5,article.definition >header h6{text-indent:0;display:inline-block;}article.definition >header ul{display:inline-block;list-style:none;margin:0;padding:0;}article.definition >header ul li{display:inline-block;padding:0 0.2em 0 0;}article.definition >header .visibility{display:none;}article.definition >header .visibility,article.definition >header .type{text-transform:lowercase;}article.definition >header .source-link{visibility:hidden;float:right;}article.definition >header .source-link:after{visibility:visible;content:"[SRC]";}article.definition .docstring{margin:0 0 0 1em;}article.definition .docstring pre{font-size:0.8em;white-space:pre-wrap;}.definition.package >header ul.nicknames{display:inline-block;list-style:none;margin:0;padding:0 0 0 1em;}.definition.package >header ul.nicknames li{display:inline;}.definition.package >header ul.nicknames:before{content:"(";}.definition.package >header ul.nicknames:after{content:")";}.definition.package ul.definitions{margin:0;list-style:none;padding:0 0 0 0.5em;}.definition.callable >header .name:before,.definition.type >header .name:before{content:"(";font-weight:normal;}.definition.callable >header .arguments:after,.definition.type >header .arguments:after{content:")";}.definition.callable >header .arguments .arguments:before,.definition.type >header .arguments .arguments:before{content:"(";}.definition.callable >header .arguments .argument,.definition.type >header .arguments .argument{padding:0;}.definition.callable >header .arguments .argument.lambda-list-keyword,.definition.type >header .arguments .argument.lambda-list-keyword{color:#991155;}.definition li>mark{background:none;border-left:0.3em solid #0088EE;padding-left:0.3em;display:block;} </style> </head> <body> <article class="project"> <header>   <h1>promise</h1>   <span class="version">1.0.0</span>    <p class="description">A small, independent promise library for asynchronous frameworks</p>   </header> <section id="documentation"><article><h2 id="about promise">About Promise</h2><p>This library implements a basic promise datastructure, which is useful for dealing with asynchronous behaviours. Importantly, this library does not use any other libraries or frameworks, and instead leaves the execution and state transition of promise objects in your control, making it easy to integrate.</p><p>Additionally, and somewhat uncommonly for promises, this library offers timeouts, to avoid deadlocks or excessive garbage when dealing with systems that are unreliable or unstable.</p><h2 id="how to">How To</h2><p>For the purpose of this tutorial we assume that <code>org.shirakumo.promise</code> has a local nickname of <code><a href="#STRUCTURE%20ORG.SHIRAKUMO.PROMISE%3APROMISE" class="xref">promise</a></code>.</p><p>Constructing a promise can be done in a variety of ways, with the most basic being <code><a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AMAKE" class="xref">make</a></code> and the shorthand <code><a href="#MACRO-FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AWITH-PROMISE" class="xref">with-promise</a></code>.</p><code style="display:block" class="code-block" data-language="common lisp"><pre>(<a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AMAKE" class="xref">promise:make</a>)
+; =&gt; #&lt;PROMISE :PENDING&gt;
+(<a href="#MACRO-FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AWITH-PROMISE" class="xref">promise:with-promise</a> (succeed fail)
+  (with-some-async-thing (result)
+    (succeed result)))
+; =&gt; #&lt;PROMISE :PENDING&gt;</pre></code><p>Each promise can also have a <code>lifetime</code> attached that says after how long the promise should automatically time out. This is useful to deal with unreliability issues and get the system unstuck. By default no lifetime is assigned and the promise lives forever.</p><p>Typically the promise should be succeeded or failed by calling the supplied functions in the constructor after some asynchronous operation completes. However, you can also manually force the state transition outside of the closure by using <code><a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3ASUCCEED" class="xref">succeed</a></code>, <code><a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AFAIL" class="xref">fail</a></code>, and <code><a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3ATIMEOUT" class="xref">timeout</a></code>.</p><p>You can chain promises together using <code><a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AAFTER" class="xref">after</a></code>, <code><a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3ATHEN" class="xref">then</a></code>, <code><a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AHANDLE" class="xref">handle</a></code>, <code><a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AFINALLY" class="xref">finally</a></code>, <code><a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AALL" class="xref">all</a></code>, <code><a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AANY" class="xref">any</a></code>, and <code><a href="#MACRO-FUNCTION%20ORG.SHIRAKUMO.PROMISE%3A-%3E" class="xref">-&gt;</a></code>.</p><code style="display:block" class="code-block" data-language="common lisp"><pre>(<a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AAFTER" class="xref">promise:after</a> <a href="http://l1sp.org/cl/%2A" class="xref">*</a> :success (lambda (value) (<a href="http://l1sp.org/cl/print" class="xref">print</a> value)))
+; =&gt; #&lt;PROMISE :PENDING&gt;</pre></code><p>All of these functions return a new promise that encompasses some new promise about the combined state. See the respective documentation strings.</p><p>If you're a user of a system that uses these promises, the above is all you should need to know about. If you're implementing an async event loop yourself and want to offer promises to the user, you should make sure to regularly call <code><a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3ATICK-ALL" class="xref">tick-all</a></code> with the current universal-time timestamp. This will make sure to update promises and call handlers if necessary.</p><p>You can also manually tick a promise with <code><a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3ATICK" class="xref">tick</a></code> if necessary.</p><p>While a promise is in the <code>pending</code> state, it is registered globally to allow <code><a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3ATICK-ALL" class="xref">tick-all</a></code> to function without needing an extra way to track the object. Once the promise changes to a done state and all of its handlers have run with <code><a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3ATICK" class="xref">tick</a></code>, it is unregistered.</p><p>Should your system somehow get stuck with promises that don't clear away, you can forcefully deregister all promises with <code><a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3ACLEAR" class="xref">clear</a></code>. Note that this is dangerous and usually not what you want outside of testing.</p></article></section>   <section id="system"> <h2>System Information</h2>  <div class="row"> <label for="version">Version:</label> <a id="version">1.0.0</a> </div>   <div class="row"> <label for="dependencies">Dependencies:</label> <ul id="dependencies"><li><a class="external" href="https://Shinmera.github.io/documentation-utils/">documentation-utils</a></li></ul> </div>   <div class="row"> <label for="author">Author:</label> <a id="author" href="mailto:shinmera@tymoon.eu">Nicolas Hafner</a> </div>   <div class="row"> <label for="license">License:</label> <a id="license" href="https://tldrlegal.com/search?q=zlib">zlib</a> </div>   <div class="row"> <label for="homepage">Homepage:</label> <a id="homepage" href="https://shinmera.github.io/promise">https://shinmera.github.io/promise</a> </div>   <div class="row"> <label for="sources">Sources:</label> <a id="sources" href="https://github.com/Shinmera/promise.git">https://github.com/Shinmera/promise.git</a> </div>  </section>    <section id="index"> <h2>Definition Index</h2> <ul> <li> <article class="definition package" id="PACKAGE ORG.SHIRAKUMO.PROMISE"> <header> <h3> <a href="#PACKAGE%20ORG.SHIRAKUMO.PROMISE">ORG.SHIRAKUMO.PROMISE</a> </h3> <ul class="nicknames"></ul>  </header> <div class="docstring"><i>No documentation provided.</i></div> <ul class="definitions"> <li> <article class="definition structure" id="STRUCTURE ORG.SHIRAKUMO.PROMISE:PROMISE"> <header> <span class="visibility">EXTERNAL</span> <span class="type">STRUCTURE</span> <h4 class="name"> <a href="#STRUCTURE%20ORG.SHIRAKUMO.PROMISE%3APROMISE">PROMISE</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/shinmera/promise/blob/master/promise.lisp#L20">Source</a>  </header> <div class="docstring"><pre>Represents a promise for a future value.
+
+A promise can be in four different states:
+
+  :PENDING -- The promise should be resolved in the future.
+  :SUCCESS -- The promise has successfully resolved and is done.
+  :FAILURE -- The promise has failed to resolved properly and is done.
+  :TIMEOUT -- The promise did not resolve in time and is done.
+
+A promise can only be moved to one of the latter three states. Once
+done, it cannot be &quot;re-armed&quot;. Attempting to chain another handler
+onto a promise that is done will cause the handler to fire immediately
+or not at all, depending on the type of handler. In that case the
+handler will be called synchronously (!) If a handler is attached to a
+pending promise, the handler will be called asynchronously whenever
+the promise moves to the requested state and TICK is called.
+
+Handlers can be attached to a promise through AFTER.
+
+A promise can be manually forced into one of its other states through
+SUCCEED, FAIL, and TIMEOUT.
+
+Once a promise has been constructed, it is registered globally so it
+can be ticked through TICK-ALL. Once a promise has resolved and all
+its handlers have been processed through TICK, it is deregistered
+again, freeing it for collection.
+
+Note that this global registration means that you MUST always resolve
+a promise, or in the very least always set a lifetime, or the promise
+will stick around in the image as garbage forever.
+
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3ASTATE" class="xref">STATE</a>
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3ASUCCEED" class="xref">SUCCEED</a>
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AFAIL" class="xref">FAIL</a>
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3ATIMEOUT" class="xref">TIMEOUT</a>
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AMAKE" class="xref">MAKE</a>
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3APEND" class="xref">PEND</a>
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3ATICK" class="xref">TICK</a>
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3ATICK-ALL" class="xref">TICK-ALL</a>
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AAFTER" class="xref">AFTER</a>
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3ADONE-P" class="xref">DONE-P</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION ORG.SHIRAKUMO.PROMISE:AFTER"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AAFTER">AFTER</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">PROMISE</li>    <li class="argument lambda-list-keyword">&amp;KEY</li>    <li class="argument">SUCCESS</li>    <li class="argument">FAILURE</li>    <li class="argument">TIMEOUT</li>    <li class="argument">LIFETIME</li>  </ul>  <a class="source-link" href="https://github.com/shinmera/promise/blob/master/promise.lisp#L151">Source</a>  </header> <div class="docstring"><pre>Perform an action after the promise has reached a particular state.
+
+Returns a new promise that encapsulates whether the attached handlers
+have successfully run or not. If one of the handlers is called and
+successfully returns, the new promise proceeds*. If a handler signals
+an error, the new promise fails.
+
+If the promise is already done, the respective handler function is
+called immediately, synchronously.
+
+*When the new promise proceeds with a value from the handler, it acts
+ differently depending on the returned value. If the value is another
+ PROMISE, the new promise is linked to the returned promise, updating
+ its state in accordance with the returned promise. If the value is
+ any other type, the new promise is instead simply moved into its
+ SUCCESS state.
+
+See <a href="#STRUCTURE%20ORG.SHIRAKUMO.PROMISE%3APROMISE" class="xref">PROMISE</a>
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3ATHEN" class="xref">THEN</a>
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AHANDLE" class="xref">HANDLE</a>
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AFINALLY" class="xref">FINALLY</a>
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AALL" class="xref">ALL</a>
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AANY" class="xref">ANY</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION ORG.SHIRAKUMO.PROMISE:ALL"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AALL">ALL</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">PROMISES</li>    <li class="argument lambda-list-keyword">&amp;KEY</li>    <li class="argument">LIFETIME</li>  </ul>  <a class="source-link" href="https://github.com/shinmera/promise/blob/master/promise.lisp#L196">Source</a>  </header> <div class="docstring"><pre>Returns a promise that succeeds if all PROMISES succeed.
+
+See <a href="#STRUCTURE%20ORG.SHIRAKUMO.PROMISE%3APROMISE" class="xref">PROMISE</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION ORG.SHIRAKUMO.PROMISE:ANY"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AANY">ANY</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">PROMISES</li>    <li class="argument lambda-list-keyword">&amp;KEY</li>    <li class="argument">LIFETIME</li>  </ul>  <a class="source-link" href="https://github.com/shinmera/promise/blob/master/promise.lisp#L218">Source</a>  </header> <div class="docstring"><pre>Returns a promise that succeeds if at least one PROMISE succeeds.</pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION ORG.SHIRAKUMO.PROMISE:CLEAR"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3ACLEAR">CLEAR</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  <a class="source-link" href="https://github.com/shinmera/promise/blob/master/promise.lisp#L17">Source</a>  </header> <div class="docstring"><pre>Clear all known promises out of the system.
+
+You should only use this if you have promises that are &quot;stuck&quot; and
+you don't care if they are resolved or not.
+
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3ATICK-ALL" class="xref">TICK-ALL</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION ORG.SHIRAKUMO.PROMISE:DONE-P"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3ADONE-P">DONE-P</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">PROMISE</li>  </ul>  <a class="source-link" href="https://github.com/shinmera/promise/blob/master/promise.lisp#L39">Source</a>  </header> <div class="docstring"><pre>Returns whether the promise is &quot;done&quot;.
+
+A promise is considered done if it is not in the pending state,
+meaning if it is in either success, failure, or timeout satte.
+
+See <a href="#STRUCTURE%20ORG.SHIRAKUMO.PROMISE%3APROMISE" class="xref">PROMISE</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION ORG.SHIRAKUMO.PROMISE:FAIL"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AFAIL">FAIL</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">PROMISE</li>    <li class="argument lambda-list-keyword">&amp;OPTIONAL</li>    <li class="argument">VALUE</li>  </ul>  <a class="source-link" href="https://github.com/shinmera/promise/blob/master/promise.lisp#L69">Source</a>  </header> <div class="docstring"><pre>Moves the promise to the failed state if possible, using the given error.
+
+If the promise is timed out, nothing happens. If the promise is
+already failed or succeeded, an error is signalled.
+
+Returns the promise.
+
+See <a href="#STRUCTURE%20ORG.SHIRAKUMO.PROMISE%3APROMISE" class="xref">PROMISE</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION ORG.SHIRAKUMO.PROMISE:FINALLY"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AFINALLY">FINALLY</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">PROMISE</li>    <li class="argument">ON-DONE</li>  </ul>  <a class="source-link" href="https://github.com/shinmera/promise/blob/master/promise.lisp#L190">Source</a>  </header> <div class="docstring"><pre>Shorthand for attaching a handler that's called when the promise is done.
+
+The passed function should take no arguments.
+
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AHANDLE" class="xref">HANDLE</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION ORG.SHIRAKUMO.PROMISE:HANDLE"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AHANDLE">HANDLE</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">PROMISE</li>    <li class="argument">ON-FAILURE</li>  </ul>  <a class="source-link" href="https://github.com/shinmera/promise/blob/master/promise.lisp#L187">Source</a>  </header> <div class="docstring"><pre>Shorthand for attaching a failure handler.
+
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AHANDLE" class="xref">HANDLE</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION ORG.SHIRAKUMO.PROMISE:MAKE"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AMAKE">MAKE</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument lambda-list-keyword">&amp;OPTIONAL</li>    <li class="argument">CONSTRUCTOR</li>    <li class="argument lambda-list-keyword">&amp;KEY</li>    <li class="argument">LIFETIME</li>  </ul>  <a class="source-link" href="https://github.com/shinmera/promise/blob/master/promise.lisp#L93">Source</a>  </header> <div class="docstring"><pre>Creates a new promise.
+
+The CONSTRUCTOR, if passed, should be a function of two arguments. The
+two arguments are a succeed and fail function of one argument
+respectively, which you should call once the promise should be
+succeeded or failed, passing along the respective value if any.
+
+Note that you can also force the returned promise into a state outside
+of using the two functions passed into the constructor, by using the
+manual state transition functions SUCCEED, FAIL, TIMEOUT.
+
+The LIFETIME should be a positive REAL that determines the maximum
+number of seconds the promise is considered &quot;live&quot; for. If the
+promise is TICKed after LIFETIME seconds have passed, it will be moved
+to the TIMEOUT state. Lifetimes are useful to avoid a computation
+getting stuck on a promise that might never be fulfilled due to
+reliability issues in the system.
+
+See <a href="#STRUCTURE%20ORG.SHIRAKUMO.PROMISE%3APROMISE" class="xref">PROMISE</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION ORG.SHIRAKUMO.PROMISE:PEND"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3APEND">PEND</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument lambda-list-keyword">&amp;KEY</li>    <li class="argument">LIFETIME</li>    <li class="argument">SUCCESS</li>    <li class="argument">FAILURE</li>  </ul>  <a class="source-link" href="https://github.com/shinmera/promise/blob/master/promise.lisp#L118">Source</a>  </header> <div class="docstring"><pre>Create a dummy promise.
+
+This is the same as using MAKE. If SUCCESS or FAILURE are passed
+respectively, the success/failure function is called immediately with
+the given value from the argument.
+
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AMAKE" class="xref">MAKE</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION ORG.SHIRAKUMO.PROMISE:STATE"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3ASTATE">STATE</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">INSTANCE</li>  </ul>  <a class="source-link" href="https://github.com/shinmera/promise/blob/master/promise.lisp#L20">Source</a>  </header> <div class="docstring"><pre>Returns the current state of the promise.
+
+See <a href="#STRUCTURE%20ORG.SHIRAKUMO.PROMISE%3APROMISE" class="xref">PROMISE</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION ORG.SHIRAKUMO.PROMISE:(SETF STATE)"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3A%28SETF%20STATE%29">(SETF STATE)</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">VALUE</li>    <li class="argument">INSTANCE</li>  </ul>  <a class="source-link" href="https://github.com/shinmera/promise/blob/master/promise.lisp#L20">Source</a>  </header> <div class="docstring"><i>No documentation provided.</i></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION ORG.SHIRAKUMO.PROMISE:SUCCEED"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3ASUCCEED">SUCCEED</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">PROMISE</li>    <li class="argument lambda-list-keyword">&amp;OPTIONAL</li>    <li class="argument">VALUE</li>  </ul>  <a class="source-link" href="https://github.com/shinmera/promise/blob/master/promise.lisp#L55">Source</a>  </header> <div class="docstring"><pre>Moves the promise to the succeeded state if possible, using the given value.
+
+If the promise is timed out, nothing happens. If the promise is
+already failed or succeeded, an error is signalled.
+
+Returns the promise.
+
+See <a href="#STRUCTURE%20ORG.SHIRAKUMO.PROMISE%3APROMISE" class="xref">PROMISE</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION ORG.SHIRAKUMO.PROMISE:THEN"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3ATHEN">THEN</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">PROMISE</li>    <li class="argument">ON-SUCCESS</li>  </ul>  <a class="source-link" href="https://github.com/shinmera/promise/blob/master/promise.lisp#L184">Source</a>  </header> <div class="docstring"><pre>Shorthand for attaching a success handler.
+
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AAFTER" class="xref">AFTER</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION ORG.SHIRAKUMO.PROMISE:TICK"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3ATICK">TICK</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">PROMISE</li>    <li class="argument">TIME</li>  </ul>  <a class="source-link" href="https://github.com/shinmera/promise/blob/master/promise.lisp#L123">Source</a>  </header> <div class="docstring"><pre>Ticks the promise to check its timeout or process handlers.
+
+If the promise is done, all respective handlers for the promise's
+state are called and popped off the promise's handler stack.
+Afterwards the promise is removed from the global registry.
+
+If the promise is pending, its timeout is checked against the given
+TIME (which should be a universal-time timestamp) and if timed out, is
+moved to the TIMEOUT state, then immediately proceeding as above.
+
+See <a href="#STRUCTURE%20ORG.SHIRAKUMO.PROMISE%3APROMISE" class="xref">PROMISE</a>
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3ATICK-ALL" class="xref">TICK-ALL</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION ORG.SHIRAKUMO.PROMISE:TICK-ALL"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3ATICK-ALL">TICK-ALL</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">TIME</li>  </ul>  <a class="source-link" href="https://github.com/shinmera/promise/blob/master/promise.lisp#L144">Source</a>  </header> <div class="docstring"><pre>Calls TICK on all registered promises.
+
+If there were any promises to tick, T is returned, otherwise NIL.
+
+See <a href="#STRUCTURE%20ORG.SHIRAKUMO.PROMISE%3APROMISE" class="xref">PROMISE</a>
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3ATICK" class="xref">TICK</a></pre></div> </article> </li>  <li> <article class="definition function callable" id="FUNCTION ORG.SHIRAKUMO.PROMISE:TIMEOUT"> <header> <span class="visibility">EXTERNAL</span> <span class="type">FUNCTION</span> <h4 class="name"> <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3ATIMEOUT">TIMEOUT</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument">PROMISE</li>  </ul>  <a class="source-link" href="https://github.com/shinmera/promise/blob/master/promise.lisp#L83">Source</a>  </header> <div class="docstring"><pre>Moves the promise to the timed-out state if possible.
+
+If the promise is timed out, nothing happens. If the promise is
+already failed or succeeded, an error is signalled.
+
+Returns the promise.
+
+See <a href="#STRUCTURE%20ORG.SHIRAKUMO.PROMISE%3APROMISE" class="xref">PROMISE</a></pre></div> </article> </li>  <li> <article class="definition macro callable" id="MACRO-FUNCTION ORG.SHIRAKUMO.PROMISE:-&gt;"> <header> <span class="visibility">EXTERNAL</span> <span class="type">MACRO</span> <h4 class="name"> <a href="#MACRO-FUNCTION%20ORG.SHIRAKUMO.PROMISE%3A-%3E">-&gt;</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <li class="argument lambda-list-keyword">&amp;REST</li>    <li class="argument">PROMISES</li>  </ul>  <a class="source-link" href="https://github.com/shinmera/promise/blob/master/promise.lisp#L239">Source</a>  </header> <div class="docstring"><pre>Shorthand macro to chain promise construction functions together.
+
+Example:
+
+  (-&gt; (make)
+      (after :success ...)
+      (then (v) ...)
+      (handle (e) ...)
+      (finally ...))
+
+See <a href="#STRUCTURE%20ORG.SHIRAKUMO.PROMISE%3APROMISE" class="xref">PROMISE</a></pre></div> </article> </li>  <li> <article class="definition macro callable" id="MACRO-FUNCTION ORG.SHIRAKUMO.PROMISE:WITH-PROMISE"> <header> <span class="visibility">EXTERNAL</span> <span class="type">MACRO</span> <h4 class="name"> <a href="#MACRO-FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AWITH-PROMISE">WITH-PROMISE</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments">  <ul class="arguments"> <li class="argument">SUCCEED</li>  <li class="argument lambda-list-keyword">&amp;OPTIONAL</li>  <li class="argument">FAIL</li>  <li class="argument lambda-list-keyword">&amp;KEY</li>  <li class="argument">LIFETIME</li> </ul>    <li class="argument lambda-list-keyword">&amp;BODY</li>    <li class="argument">BODY</li>  </ul>  <a class="source-link" href="https://github.com/shinmera/promise/blob/master/promise.lisp#L106">Source</a>  </header> <div class="docstring"><pre>Shorthand for MAKE with an initialisation function.
+
+SUCCEED and FAIL are variable names bound to the respective functions
+to manage the promise's state. The names are both bound as a variable
+and bound as a function for convenience.
+
+See <a href="#FUNCTION%20ORG.SHIRAKUMO.PROMISE%3AMAKE" class="xref">MAKE</a></pre></div> </article> </li>  <li> <article class="definition source-transform" id="SOURCE-TRANSFORM ORG.SHIRAKUMO.PROMISE:STATE"> <header> <span class="visibility">EXTERNAL</span> <span class="type">SOURCE-TRANSFORM</span> <h4 class="name"> <a href="#SOURCE-TRANSFORM%20ORG.SHIRAKUMO.PROMISE%3ASTATE">STATE</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  </header> <div class="docstring"><i>No documentation provided.</i></div> </article> </li>  <li> <article class="definition source-transform" id="SOURCE-TRANSFORM ORG.SHIRAKUMO.PROMISE:(SETF STATE)"> <header> <span class="visibility">EXTERNAL</span> <span class="type">SOURCE-TRANSFORM</span> <h4 class="name"> <a href="#SOURCE-TRANSFORM%20ORG.SHIRAKUMO.PROMISE%3A%28SETF%20STATE%29">(SETF STATE)</a> </h4> <ul class="qualifiers"></ul> <ul class="arguments"></ul>  </header> <div class="docstring"><i>No documentation provided.</i></div> </article> </li> </ul> </article> </li> </ul> </section>  </article> <script>window.addEventListener("DOMContentLoaded", function(){
+    var unmarkElement = function(el){
+        if(el.tagName === "mark" || el.tagName === "MARK"){
+            [].forEach.call(el.childNodes, function(child){
+                el.parentNode.insertBefore(child, el);
+            });
+            el.parentNode.removeChild(el);
+        }else if(el.parentNode.tagName === "mark"){
+            return unmarkElement(el.parentNode);
+        }
+        return null;
+    }
+
+    var unmarkAll = function(root){
+        root = root || document;
+        [].forEach.call(root.querySelectorAll("mark"), unmarkElement);
+    }
+    
+    var markElement = function(el){
+        if(el.parentNode.tagName === "mark" || el.parentNode.tagName === "MARK"){
+            return el.parentNode;
+        } else {
+            unmarkAll();
+            var marked = document.createElement("mark");
+            el.parentNode.insertBefore(marked, el);
+            marked.appendChild(el);
+            return marked;
+        }
+    }
+
+    var markFragmented = function(){
+        if(window.location.hash){
+            var el = document.getElementById(decodeURIComponent(window.location.hash.substr(1)));
+            if(el) markElement(el);
+        }
+    }
+
+    var registerXrefLink = function(link){
+        var el = document.getElementById(decodeURIComponent(link.getAttribute("href").substr(1)));
+        if(el){
+            link.addEventListener("click", function(){
+                markElement(el);
+            });
+        }
+    }
+
+    var registerXrefLinks = function(root){
+        root = root || document;
+        [].forEach.call(root.querySelectorAll("a.xref"), registerXrefLink);
+    }
+
+    markFragmented();
+    registerXrefLinks();
+}); </script> </body> </html> 
