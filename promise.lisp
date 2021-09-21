@@ -52,7 +52,7 @@
     (:timeout
      (timeout promise))))
 
-(defun succeed (promise value)
+(defun succeed (promise &optional value)
   (ecase (state promise)
     (:pending
      (cond ((typep value 'promise)
@@ -66,7 +66,7 @@
      (error "The promise~%  ~a~%is already done." promise)))
   promise)
 
-(defun fail (promise value)
+(defun fail (promise &optional value)
   (ecase (state promise)
     (:pending
      (cond ((typep value 'promise)

@@ -57,6 +57,14 @@ See TICK
 See TICK-ALL
 See AFTER
 See DONE-P")
+
+  (function done-p
+    "Returns whether the promise is \"done\".
+
+A promise is considered done if it is not in the pending state,
+meaning if it is in either success, failure, or timeout satte.
+
+See PROMISE")
   
   (function state
     "Returns the current state of the promise.
