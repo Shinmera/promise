@@ -25,7 +25,7 @@ You can chain promises together using ``after``, ``then``, ``handle``, ``finally
 
 :: common lisp
 (promise:after * :success (lambda (value) (print value)))
-; => PROMISE
+; => #<PROMISE :PENDING>
 ::
 
 All of these functions return a new promise that encompasses some new promise about the combined state. See the respective documentation strings.

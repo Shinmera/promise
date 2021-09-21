@@ -34,7 +34,7 @@
     (format stream "~s" (state promise))))
 
 (defun %make (lifetime)
-  (register (%%make (if timeout (+ (get-universal-time) lifetime) most-positive-fixnum))))
+  (register (%%make (if lifetime (+ (get-universal-time) lifetime) most-positive-fixnum))))
 
 (defun done-p (promise)
   (not (eq :pending (state promise))))
@@ -63,7 +63,8 @@
     (:timeout
      #|Too late, don't care.|#)
     ((:success :failure)
-     (error "The promise~%  ~a~%is already done." promise))))
+     (error "The promise~%  ~a~%is already done." promise)))
+  promise)
 
 (defun fail (promise value)
   (ecase (state promise)
@@ -76,7 +77,8 @@
     (:timeout
      #|Too late, don't care.|#)
     ((:success :failure)
-     (error "The promise~%  ~a~%is already done." promise))))
+     (error "The promise~%  ~a~%is already done." promise)))
+  promise)
 
 (defun timeout (promise)
   (ecase (state promise)
@@ -85,13 +87,14 @@
     (:timeout
      #|Too late, don't care.|#)
     ((:success :failure)
-     (error "The promise~%  ~a~%is already done." promise))))
+     (error "The promise~%  ~a~%is already done." promise)))
+  promise)
 
 (defun make (&optional constructor &key lifetime)
   (let ((promise (%make lifetime)))
     (flet ((succeed (&optional value)
              (succeed promise value))
-           (fail (&optioanl value)
+           (fail (&optional value)
              (fail promise value)))
       (when constructor
         (handler-case
@@ -100,17 +103,22 @@
             (fail e))))
       promise)))
 
-(defmacro with-promise ((succeed fail &key lifetime) &body body)
-  `(make (lambda (,succeed ,fail)
-           (flet ((,succeed (&optional value)
-                    (funcall ,succeed value))
-                  (,fail (&optional value)
-                    (funcall ,fail value)))
-             ,@body))
-         :lifetime ,lifetime))
+(defmacro with-promise ((succeed &optional fail &key lifetime) &body body)
+  (let ((fail (or fail (gensym "FAIL"))))
+    `(make (lambda (,succeed ,fail)
+             (declare (ignorable ,succeed ,fail))
+             (flet ((,succeed (&optional value)
+                      (funcall ,succeed value))
+                    (,fail (&optional value)
+                        (funcall ,fail value)))
+               (declare (ignorable #',succeed #',fail))
+               ,@body))
+           :lifetime ,lifetime)))
 
-(defun pend (&key lifetime)
-  (make NIL :lifetime lifetime))
+(defun pend (&key lifetime success failure)
+  (with-promise (s f :lifetime lifetime)
+    (when success (funcall s success))
+    (when failure (funcall f failure))))
 
 (defun tick (promise time)
   (ecase (state promise)
@@ -147,6 +155,12 @@
                (handler-case
                    (succeed next (funcall func value))
                  (error (e)
+                   (fail next e)))))
+           (thandler (func)
+             (lambda ()
+               (handler-case
+                   (succeed next (funcall func))
+                 (error (e)
                    (fail next e))))))
       (case (state promise)
         (:pending
@@ -155,7 +169,7 @@
          (when failure
            (push (handler failure) (on-failure promise)))
          (when timeout
-           (push (handler timeout) (on-timeout promise))))
+           (push (thandler timeout) (on-timeout promise))))
         (:success
          (when success
            (funcall (handler success) (value promise))))
@@ -164,11 +178,11 @@
            (funcall (handler failure) (value promise))))
         (:timeout
          (when timeout
-           (funcall (handler timeout) (value promise))))))
+           (funcall (thandler timeout) (value promise))))))
     next))
 
 (defun then (promise on-success)
-  (after pormise :success on-success))
+  (after promise :success on-success))
 
 (defun handle (promise on-failure)
   (after promise :failure on-failure))
@@ -191,7 +205,7 @@
                            (funcall ok (mapcar #'value promises))))
                        (on-success promise))
                  (push (lambda (e)
-                         (funcall fail e))
+                         (ignore-errors (funcall fail e)))
                        (on-failure promise)))
                 (:success
                  (when (= 0 (decf count))
@@ -208,7 +222,7 @@
               (case (state promise)
                 (:pending
                  (push (lambda (v)
-                         (funcall ok v))
+                         (ignore-errors (funcall ok v)))
                        (on-success promise))
                  (push (lambda (e)
                          (when (= 0 (decf count))

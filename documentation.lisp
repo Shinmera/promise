@@ -69,6 +69,8 @@ See PROMISE")
 If the promise is timed out, nothing happens. If the promise is
 already failed or succeeded, an error is signalled.
 
+Returns the promise.
+
 See PROMISE")
   
   (function fail
@@ -77,6 +79,8 @@ See PROMISE")
 If the promise is timed out, nothing happens. If the promise is
 already failed or succeeded, an error is signalled.
 
+Returns the promise.
+
 See PROMISE")
   
   (function timeout
@@ -84,6 +88,8 @@ See PROMISE")
 
 If the promise is timed out, nothing happens. If the promise is
 already failed or succeeded, an error is signalled.
+
+Returns the promise.
 
 See PROMISE")
   
@@ -120,7 +126,9 @@ See MAKE")
   (function pend
     "Create a dummy promise.
 
-This is the same as using MAKE with no constructor argument.
+This is the same as using MAKE. If SUCCESS or FAILURE are passed
+respectively, the success/failure function is called immediately with
+the given value from the argument.
 
 See MAKE")
   

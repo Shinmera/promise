@@ -17,4 +17,5 @@
   :components ((:file "package")
                (:file "promise")
                (:file "documentation"))
-  :depends-on (:documentation-utils))
+  :depends-on (:documentation-utils)
+  :in-order-to ((asdf:test-op (asdf:test-op :promise-test))))
