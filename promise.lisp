@@ -228,14 +228,23 @@
                 (:timeout))))
           :lifetime lifetime)))
 
-(defmacro -> (&rest promises)
-  (if (rest promises)
-      (let ((first (pop promises)))
-        (destructuring-bind (func . args) (pop promises)
-          `(-> ,(ecase func
-                  (after `(after ,first ,@args))
-                  (then `(then ,first (lambda ,@args)))
-                  (handle `(handle ,first (lambda ,@args)))
-                  (finally `(finally ,first (lambda () ,@args))))
-               ,@promises)))
-      (first promises)))
+(defmacro -> (promise &body promises)
+  (if promises
+      (destructuring-bind (func . args) (pop promises)
+        `(-> ,(ecase func
+                ((after :after)
+                 `(after ,promise ,@args))
+                ((then :then)
+                 (let ((arglist (or (first args) (list (gensym "VALUE")))))
+                   `(then ,promise (lambda ,arglist
+                                     (declare (ignorable ,@arglist))
+                                     ,@(rest args)))))
+                ((handle :handle)
+                 (let ((arglist (or (first args) (list (gensym "VALUE")))))
+                   `(handle ,promise (lambda ,arglist
+                                       (declare (ignorable ,@arglist))
+                                       ,@(rest args)))))
+                ((finally :finally)
+                 `(finally ,promise (lambda () ,@args))))
+             ,@promises))
+      promise))
