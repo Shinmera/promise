@@ -115,10 +115,10 @@
                ,@body))
            :lifetime ,lifetime)))
 
-(defun pend (&key lifetime success failure)
+(defun pend (&key lifetime (success NIL success-p) (failure NIL failure-p))
   (with-promise (s f :lifetime lifetime)
-    (when success (funcall s success))
-    (when failure (funcall f failure))))
+    (when success-p (funcall s success))
+    (when failure-p (funcall f failure))))
 
 (defun tick (promise time)
   (ecase (state promise)
@@ -228,6 +228,36 @@
                 (:timeout))))
           :lifetime lifetime)))
 
+(defun iterate (end-p cur-fun step-fun start function)
+  (labels ((next (object)
+             (unless (funcall end-p object)
+               (let* ((cur (funcall cur-fun object))
+                      (next (funcall step-fun object))
+                      (result (funcall function cur)))
+                 (if (typep result 'promise)
+                     (then result
+                           (lambda (v)
+                             (declare (ignore v))
+                             (funcall #'next next)))
+                     (then (pend :success next)
+                           #'next))))))
+    (then (pend :success start) #'next)))
+
+(defun each (sequence function)
+  (etypecase sequence
+    (null
+     (pend :success NIL))
+    (list
+     (iterate #'null #'car #'rest sequence function))
+    (vector
+     (let ((length (length sequence)))
+       (iterate (lambda (i) (<= length i))
+                (lambda (i) (aref sequence i))
+                #'1+ 0 function)))))
+
+(defmacro do-promised ((element sequence) &body body)
+  `(each ,sequence (lambda (,element) ,@body)))
+
 (defmacro -> (promise &body promises)
   (if promises
       (destructuring-bind (func . args) (pop promises)
@@ -246,5 +276,5 @@
                                        ,@(rest args)))))
                 ((finally :finally)
                  `(finally ,promise (lambda () ,@args))))
-             ,@promises))
+           ,@promises))
       promise))

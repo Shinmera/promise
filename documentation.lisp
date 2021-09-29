@@ -210,7 +210,45 @@ See HANDLE")
 See PROMISE")
   
   (function any
-    "Returns a promise that succeeds if at least one PROMISE succeeds.")
+    "Returns a promise that succeeds if at least one PROMISE succeeds.
+
+See PROMISE")
+
+  (function iterate
+    "Create a promise that can iterate using the provided iteration functions.
+
+This works as follows: START is used as the starting state of the
+iteration. Then, until END-P on the current state returns T, promises
+are generated. Each time calling CUR-FUN with the state to retrieve
+the iteration element. And STEP-FUN with the state to retrieve the
+successor state. FUNCTION is then called with the iteration
+element. If FUNCTION returns a promise, the next iteration is chained
+to the completion of that promise. If not, the next iteration is
+chained immediately.
+
+The promise returned by this function will only succeed once the
+iteration has completed.
+
+See PROMISE
+See EACH")
+
+  (function each
+    "Iterate over a sequence, calling FUNCTION for each element.
+
+If FUNCTION returns a promise, iteration is suspended until the
+promise succeeds. Should FUNCTION ever error, or a promise it returns
+fail, the iteration is cancelled.
+
+Returns a promise that encapsulates whether the sequence has
+successfully been iterated through.
+
+See ITERATE
+See DO-PROMISED")
+
+  (function do-promised
+    "Shorthand macro for EACH.
+
+See EACH")
   
   (function ->
     "Shorthand macro to chain promise construction functions together.

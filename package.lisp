@@ -25,4 +25,7 @@
    #:finally
    #:all
    #:any
+   #:iterate
+   #:each
+   #:do-promised
    #:->))
