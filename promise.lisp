@@ -31,7 +31,11 @@
 
 (defmethod print-object ((promise promise) stream)
   (print-unreadable-object (promise stream :type T :identity T)
-    (format stream "~s" (state promise))))
+    (format stream "~s" (state promise))
+    (unless (done-p promise)
+      (let ((lifetime (- (deadline promise) (get-universal-time))))
+        (format stream " ~:[ETERNAL~;~ds~]"
+                (< lifetime 3600) lifetime)))))
 
 (defun %make (lifetime)
   (register (%%make (if lifetime (+ (get-universal-time) lifetime) most-positive-fixnum))))
