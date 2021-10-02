@@ -11,13 +11,33 @@
 (defvar *promises* ())
 
 (defun register (promise)
-  (push promise *promises*))
+  (push promise *promises*)
+  promise)
 
 (defun deregister (promise)
-  (setf *promises* (delete promise *promises*)))
+  (setf *promises* (delete promise *promises*))
+  promise)
 
 (defun clear ()
   (setf *promises* NIL))
+
+(defmacro with-promise-handling ((promise) &body body)
+  (let ((failure (gensym "FAILURE"))
+        (done (gensym "DONE")))
+    `(let ((,failure NIL)
+           (,done NIL))
+       (unwind-protect
+            (restart-case
+                (multiple-value-prog1
+                    (handler-bind ((error (lambda (e) (setf ,failure e))))
+                      ,@body)
+                  (setf ,done T))
+              (abort (&optional e)
+                :report "Abort the handler and fail the promise."
+                (when e
+                  (setf ,failure e))))
+         (unless ,done
+           (fail ,promise ,failure))))))
 
 (defstruct (promise
             (:constructor %%make (deadline &key on-success on-failure on-timeout))
@@ -98,16 +118,12 @@
 
 (defun make (&optional constructor &key lifetime)
   (let ((promise (%make lifetime)))
-    (flet ((succeed (&optional value)
-             (succeed promise value))
-           (fail (&optional value)
-             (fail promise value)))
-      (when constructor
-        (handler-case
-            (funcall constructor #'succeed #'fail)
-          (error (e)
-            (fail e))))
-      promise)))
+    (when constructor
+      (with-promise-handling (promise)
+        (funcall constructor
+                 (lambda (&optional value) (succeed promise value))
+                 (lambda (&optional value) (fail promise) value))))
+    promise))
 
 (defmacro with-promise ((succeed &optional fail &key lifetime) &body body)
   (let ((fail (or fail (gensym "FAIL"))))
@@ -156,16 +172,12 @@
   (let ((next (%make lifetime)))
     (flet ((handler (func)
              (lambda (value)
-               (handler-case
-                   (succeed next (funcall func value))
-                 (error (e)
-                   (fail next e)))))
+               (with-promise-handling (next)
+                 (succeed next (funcall func value)))))
            (thandler (func)
              (lambda ()
-               (handler-case
-                   (succeed next (funcall func))
-                 (error (e)
-                   (fail next e))))))
+               (with-promise-handling (next)
+                 (succeed next (funcall func))))))
       (when success
         (push (handler success) (on-success promise)))
       (when failure
