@@ -6,16 +6,18 @@
 
 (in-package #:org.shirakumo.promise)
 
-(defvar *promises* (make-hash-table :test 'eq))
+;; FIXME: We can't use a hash table due to modification during iteration
+;;        however, this makes deregistering potentially very expensive.
+(defvar *promises* ())
 
 (defun register (promise)
-  (setf (gethash promise *promises*) promise))
+  (push promise *promises*))
 
 (defun deregister (promise)
-  (remhash promise *promises*))
+  (setf *promises* (delete promise *promises*)))
 
 (defun clear ()
-  (clrhash *promises*))
+  (setf *promises* NIL))
 
 (defstruct (promise
             (:constructor %%make (deadline &key on-success on-failure on-timeout))
@@ -146,11 +148,9 @@
      (deregister promise))))
 
 (defun tick-all (time)
-  (let ((res NIL))
-    (loop for promise being the hash-keys of *promises*
-          do (tick promise time)
-             (setf res T))
-    res))
+  (when *promises*
+    (dolist (promise *promises* T)
+      (tick promise time))))
 
 (defun after (promise &key success failure timeout lifetime)
   (let ((next (%make lifetime)))
