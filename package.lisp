@@ -28,4 +28,5 @@
    #:iterate
    #:each
    #:do-promised
+   #:do-times-promised
    #:->))

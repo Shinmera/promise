@@ -249,6 +249,11 @@ See DO-PROMISED")
     "Shorthand macro for EACH.
 
 See EACH")
+
+  (function do-times-promised
+    "Same as DOTIMES, but with a promise for each iteration.
+
+See ITERATE")
   
   (function ->
     "Shorthand macro to chain promise construction functions together.

@@ -288,6 +288,12 @@
 (defmacro do-promised ((element sequence) &body body)
   `(each ,sequence (lambda (,element) ,@body)))
 
+(defmacro do-times-promised ((i limit) &body body)
+  (let ((limitg (gensym "LIMIT")))
+    `(let ((,limitg ,limit))
+       (iterate (lambda (it) (<= ,limitg it))
+                #'identity #'1+ 0 (lambda (,i) ,@body)))))
+
 (defmacro -> (promise &body promises)
   (if promises
       (destructuring-bind (func . args) (pop promises)
