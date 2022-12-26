@@ -269,6 +269,20 @@
      (let ((length (length sequence)))
        (iterate (lambda (i) (<= length i))
                 (lambda (i) (aref sequence i))
+                #'1+ 0 function)))
+    #+sbcl
+    (sequence
+     (sb-sequence:with-sequence-iterator (iterator limit from-end-p step endp element) (sequence)
+       (declare (ignore from-end-p))
+       (iterate (lambda (it) (funcall endp it limit NIL))
+                element
+                (lambda (it) (funcall step it NIL))
+                iterator function)))
+    #-sbcl
+    (sequence
+     (let ((length (length sequence)))
+       (iterate (lambda (i) (<= length i))
+                (lambda (i) (elt sequence i))
                 #'1+ 0 function)))))
 
 (defmacro do-promised ((element sequence) &body body)
