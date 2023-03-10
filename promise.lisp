@@ -320,7 +320,7 @@
                                      ,@(rest args)))))
                 ((handle :handle)
                  (let ((arglist (or (first args) (list (gensym "VALUE")))))
-                   `(handle ,promise (lambda ,(first arglist)
+                   `(handle ,promise (lambda (,(first arglist))
                                        (declare (ignorable ,@arglist))
                                        ,@(rest args))
                             ,@(rest arglist))))
