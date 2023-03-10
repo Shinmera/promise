@@ -201,8 +201,13 @@
 (defun then (promise on-success)
   (after promise :success on-success))
 
-(defun handle (promise on-failure)
-  (after promise :failure on-failure))
+(defun handle (promise on-failure &optional (type T type-p))
+  (after promise :failure
+         (if type-p
+             (lambda (value)
+               (when (typep value type)
+                 (funcall on-failure value)))
+             on-failure)))
 
 (defun finally (promise on-done)
   (flet ((wrap (v)
@@ -318,9 +323,10 @@
                                      ,@(rest args)))))
                 ((handle :handle)
                  (let ((arglist (or (first args) (list (gensym "VALUE")))))
-                   `(handle ,promise (lambda ,arglist
+                   `(handle ,promise (lambda ,(first arglist)
                                        (declare (ignorable ,@arglist))
-                                       ,@(rest args)))))
+                                       ,@(rest args))
+                            ,@(rest arglist))))
                 ((finally :finally)
                  `(finally ,promise (lambda () ,@args))))
            ,@promises))
