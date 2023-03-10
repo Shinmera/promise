@@ -173,9 +173,6 @@
 (defmethod ensure-promise ((promise promise))
   promise)
 
-(defmethod ensure-promise ((function function))
-  (make function))
-
 (defun after (promise &key success failure timeout lifetime)
   (let* ((promise (ensure-promise promise))
          (next (%make lifetime)))

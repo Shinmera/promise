@@ -168,7 +168,12 @@ See TICK")
 Signals an error if not possible.
 
 The user may add methods on this function to allow integration with
-promise wrapper objects.
+promise wrapper objects with the following restriction:
+
+  (eq (ensure-promise #1) (ensure-promise #1#))
+
+Meaning calling ENSURE-PROMISE on the identical argument again must
+yield an identical returned PROMISE.
 
 See PROMISE")
   
