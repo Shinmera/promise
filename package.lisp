@@ -31,4 +31,4 @@
    #:do-promised
    #:do-times-promised
    #:->
-   #:promise-handler-case))
+   #:with-handlers))

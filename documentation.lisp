@@ -292,7 +292,7 @@ Example:
 
 See PROMISE")
 
-  (function promise-handler-case
+  (function with-handlers
     "Convenience macro to handle different failures.
 
 Each form in the body should be of the structure:

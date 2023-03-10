@@ -329,7 +329,7 @@
            ,@promises))
       promise))
 
-(defmacro promise-handler-case (promise &body handlers)
+(defmacro with-handlers (promise &body handlers)
   (let ((promiseg (gensym "PROMISE")))
     `(let ((,promiseg ,promise))
        (setf ,promiseg (ensure-promise ,promiseg))
