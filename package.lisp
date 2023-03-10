@@ -19,6 +19,7 @@
    #:pend
    #:tick
    #:tick-all
+   #:ensure-promise
    #:after
    #:then
    #:handle

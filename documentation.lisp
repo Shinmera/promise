@@ -161,6 +161,16 @@ If there were any promises to tick, T is returned, otherwise NIL.
 
 See PROMISE
 See TICK")
+
+  (function ensure-promise
+    "Coerces the object into a PROMISE object, if possible.
+
+Signals an error if not possible.
+
+The user may add methods on this function to allow integration with
+promise wrapper objects.
+
+See PROMISE")
   
   (function after
     "Perform an action after the promise has reached a particular state.
@@ -180,6 +190,9 @@ If the promise is already done, the respective handler function is
  any other type, the new promise is instead simply moved into its
  SUCCESS state.
 
+The passed promise is coerced via ENSURE-PROMISE.
+
+See ENSURE-PROMISE
 See PROMISE
 See THEN
 See HANDLE
@@ -195,6 +208,8 @@ See AFTER")
   (function handle
     "Shorthand for attaching a failure handler.
 
+If TYPE is passed, only invokes ON-FAILURE if the value is of TYPE.
+
 See HANDLE")
   
   (function finally
@@ -207,10 +222,14 @@ See HANDLE")
   (function all
     "Returns a promise that succeeds if all PROMISES succeed.
 
+The passed promises are coerced via ENSURE-PROMISE.
+
 See PROMISE")
   
   (function any
     "Returns a promise that succeeds if at least one PROMISE succeeds.
+
+The passed promises are coerced via ENSURE-PROMISE.
 
 See PROMISE")
 

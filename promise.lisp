@@ -168,8 +168,17 @@
     (dolist (promise *promises* T)
       (tick promise time))))
 
+(defgeneric ensure-promise (promise-ish))
+
+(defmethod ensure-promise ((promise promise))
+  promise)
+
+(defmethod ensure-promise ((function function))
+  (make function))
+
 (defun after (promise &key success failure timeout lifetime)
-  (let ((next (%make lifetime)))
+  (let* ((promise (ensure-promise promise))
+         (next (%make lifetime)))
     (flet ((handler (func)
              (lambda (value)
                (with-promise-handling (next)
@@ -204,44 +213,46 @@
 (defun all (promises &key lifetime)
   (let ((count (length promises)))
     (make (lambda (ok fail)
-            (dolist (promise promises)
-              (ecase (state promise)
-                (:pending
-                 (push (lambda (v)
-                         (declare (ignore v))
-                         (when (= 0 (decf count))
-                           (funcall ok (mapcar #'value promises))))
-                       (on-success promise))
-                 (push (lambda (e)
-                         (ignore-errors (funcall fail e)))
-                       (on-failure promise)))
-                (:success
-                 (when (= 0 (decf count))
-                   (funcall ok (mapcar #'value promises))))
-                (:failure
-                 (funcall fail (value promise)))
-                (:timeout))))
+            (loop for promise-ish in promises
+                  for promise = (ensure-promise promise-ish)
+                  do (ecase (state promise)
+                       (:pending
+                        (push (lambda (v)
+                                (declare (ignore v))
+                                (when (= 0 (decf count))
+                                  (funcall ok (mapcar #'value promises))))
+                              (on-success promise))
+                        (push (lambda (e)
+                                (ignore-errors (funcall fail e)))
+                              (on-failure promise)))
+                       (:success
+                        (when (= 0 (decf count))
+                          (funcall ok (mapcar #'value promises))))
+                       (:failure
+                        (funcall fail (value promise)))
+                       (:timeout))))
           :lifetime lifetime)))
 
 (defun any (promises &key lifetime)
   (let ((count (length promises)))
     (make (lambda (ok fail)
-            (dolist (promise promises)
-              (case (state promise)
-                (:pending
-                 (push (lambda (v)
-                         (ignore-errors (funcall ok v)))
-                       (on-success promise))
-                 (push (lambda (e)
-                         (when (= 0 (decf count))
-                           (funcall fail e)))
-                       (on-failure promise)))
-                (:success
-                 (funcall ok (value promise)))
-                (:failure
-                 (when (= 0 (decf count))
-                   (funcall fail (value promise))))
-                (:timeout))))
+            (loop for promise-ish in promises
+                  for promise = (ensure-promise promise-ish)
+                  do (case (state promise)
+                       (:pending
+                        (push (lambda (v)
+                                (ignore-errors (funcall ok v)))
+                              (on-success promise))
+                        (push (lambda (e)
+                                (when (= 0 (decf count))
+                                  (funcall fail e)))
+                              (on-failure promise)))
+                       (:success
+                        (funcall ok (value promise)))
+                       (:failure
+                        (when (= 0 (decf count))
+                          (funcall fail (value promise))))
+                       (:timeout))))
           :lifetime lifetime)))
 
 (defun iterate (end-p cur-fun step-fun start function)
