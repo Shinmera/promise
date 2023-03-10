@@ -30,4 +30,5 @@
    #:each
    #:do-promised
    #:do-times-promised
-   #:->))
+   #:->
+   #:promise-handler-case))

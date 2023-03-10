@@ -328,3 +328,11 @@
                  `(finally ,promise (lambda () ,@args))))
            ,@promises))
       promise))
+
+(defmacro promise-handler-case (promise &body handlers)
+  (let ((promiseg (gensym "PROMISE")))
+    `(let ((,promiseg ,promise))
+       (setf ,promiseg (ensure-promise ,promiseg))
+       ,@(loop for (type args . body) in handlers
+               collect `(handle ,promiseg (lambda ,args ,@body) ',type))
+       ,promiseg)))

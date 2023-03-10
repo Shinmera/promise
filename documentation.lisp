@@ -290,4 +290,19 @@ Example:
       (handle (e) ...)
       (finally ...))
 
-See PROMISE"))
+See PROMISE")
+
+  (function promise-handler-case
+    "Convenience macro to handle different failures.
+
+Each form in the body should be of the structure:
+
+  (TYPE ARGLIST . BODY)
+
+Similar to HANDLER-BIND. Each of the body forms is turned into a
+promise that is attached to the primary promise.
+
+The primary promise is returned.
+
+See PROMISE
+See HANDLE"))
