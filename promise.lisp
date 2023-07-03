@@ -1,9 +1,3 @@
-#|
- This file is a part of promise
- (c) 2021 Shirakumo http://tymoon.eu (shinmera@tymoon.eu)
- Author: Nicolas Hafner <shinmera@tymoon.eu>
-|#
-
 (in-package #:org.shirakumo.promise)
 
 ;; FIXME: We can't use a hash table due to modification during iteration
