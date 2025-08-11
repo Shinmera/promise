@@ -4,9 +4,9 @@
   :author "Yukari Hafner <shinmera@tymoon.eu>"
   :maintainer "Yukari Hafner <shinmera@tymoon.eu>"
   :description "Tests for the promise system."
-  :homepage "https://shinmera.github.io/promise"
-  :bug-tracker "https://github.com/Shinmera/promise/issues"
-  :source-control (:git "https://github.com/Shinmera/promise.git")
+  :homepage "https://shinmera.com/docs/promise"
+  :bug-tracker "https://shinmera.com/project/promise/issues"
+  :source-control (:git "https://shinmera.com/project/promise.git")
   :serial T
   :components ((:file "test"))
   :depends-on (:parachute
